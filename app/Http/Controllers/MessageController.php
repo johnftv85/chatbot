@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\App;
 
 use App\Models\Message;
 use App\Models\ExternalMessage;
@@ -35,8 +37,8 @@ class MessageController extends Controller
             }
             
             $responds = DB::connection('external')->select($query->query);
-
-            $response = $this->api($responds, $user, $query); 
+            $pdf='';
+            $response = $this->api($responds, $user, $query,$pdf); 
 
             if ($response) {
                 Log::info('Message sent successfully', ['response' => $response]);
@@ -58,10 +60,16 @@ class MessageController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function pdf($content = null)
     {
-        //
+        if ($content === null) {
+            $content = '<h1>Hola PDF</h1>'; // Contenido por defecto si no se proporciona ninguno
+        }
+
+        $pdf = Pdf::loadHTML($content);
+        return $pdf->stream('archivo.pdf');
     }
+    
 
     /**
      * Store a newly created resource in storage.
