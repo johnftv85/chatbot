@@ -43,19 +43,19 @@ class ExportMessage extends Command
             $codTipodoc = $this->argument('codtipodoc', null);
             $prefMov = $this->argument('prefmov', null);
             $numMov = $this->argument('nummov', null);
-            
+
             $this->context = [
                 'user_id' => $userId,
                 'Tipodoc' => $codTipodoc
             ];
-            
+
             $ConnController = new ConnectionController();
 
             $connection = $ConnController->index($userId,$codTipodoc,$prefMov,$numMov);
-            
+
             if($connection == null){
-                tbl_log::insertLog($userId, 
-                $codTipodoc, 
+                tbl_log::insertLog($userId,
+                $codTipodoc,
                 'app:export-message[handle()] => Conexion externa: Linea ' . __LINE__ . '; ' );
                 return 1;
             }else{

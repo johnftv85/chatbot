@@ -2,7 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ConnectionController;
+use App\Http\Controllers\Controller;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\PostController;
 use Illuminate\Support\Facades\App;
 use Barryvdh\DomPDF\Facades\Pdf;
 
@@ -18,9 +20,11 @@ use Barryvdh\DomPDF\Facades\Pdf;
 */
 // Route::get('/pdf/{content}', [MessageController::class, 'pdf'])->name('pdf');
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('cursos/{curso}', function ($cursos) {
+    // return view('welcome');
+    return "Bienvenido al curso: $cursos";
+})->whereAlpha('curso');
+
 // Route::get('/', function () {
 //                $pdf = App::make('dompdf.wrapper');
 //             //    $pdf = app('dompdf.wrapper');
@@ -29,5 +33,15 @@ Route::get('/', function () {
 //                return $pdf->stream();
 // });
 
-Route::get('/pdf/{order?}', [MessageController::class, 'pdf']);
-Route::get('Connection/{userId}/{codtipodoc}/{prefmov}/{nummov}', [ConnectionController::class, 'index']);
+// Route::get('/pdf/{order?}', [MessageController::class, 'pdf']);
+// Route::get('Connection/{userId}/{codtipodoc}/{prefmov}/{nummov}', [ConnectionController::class, 'index']);
+
+Route::prefix('posts')->name('posts')->controller(PostController::class)->group(function(){
+    Route::get('/', 'index')->name('index');
+    Route::get('/create', 'create')->name('create');
+    Route::post('/', 'store')->name('store');
+    Route::get('/{post}', 'show')->name('show');
+    Route::get('/{post}/edit', 'edit')->name('edit');
+    Route::put('/{post}', 'update')->name('update');
+    Route::delete('/{post}', 'destroy')->name('destroy');
+});
