@@ -13,6 +13,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
+
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
@@ -56,5 +58,14 @@ class User extends Authenticatable
     public function external_message(): BelongsToMany
     {
         return $this->belongsToMany(ExternalMessage::class);
+    }
+
+    public function name(): Attribute
+    {
+        return new Attribute(
+            get: fn($value) => ucwords($value),
+
+            set: fn($value)=> strtolower($value)
+        );
     }
 }
