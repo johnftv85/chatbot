@@ -5,23 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ConnectionApi extends Model
+class Query extends Model
 {
     use HasFactory;
 
-    protected $table = 'connections_api';
+    protected $table = 'queries';
     protected $connection = 'mysql';
     protected $fillable = [
         'id',
-        'url',
-        'endpoint',
-        'body',
-        'headers',
-        'method',
-        'params',
-        'state',
-        'message'
+        'name',
+        'sentence',
+        'from',
+        'until'
     ];
-
     public $timestamps = false;
 }

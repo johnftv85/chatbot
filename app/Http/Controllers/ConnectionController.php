@@ -22,38 +22,38 @@ class ConnectionController extends Controller
      * Display a listing of the resource.
      */
     public function index($userId,$codtipodoc,$prefmov,$nummov)
-    {   
+    {
         $user = User::with('external_connection')->find($userId);
             //  return response()->json($user->external_connection->state);
-            
-        if($user->external_connection->state == 0){      
-            return response()->json('El Usuario '.$user->name.' con el id '.$user->id.' esta inactivo.'); 
+
+        if($user->external_connection->state == 0){
+            return response()->json('El Usuario '.$user->name.' con el id '.$user->id.' esta inactivo.');
             exit;
         }else{
             try{
                 $this->database($user);
 
                $query = Message::where('area_id', $codtipodoc)->first();
-   
+
                $replace =[
                    '@prefmov' => $prefmov,
                    '@nummov' => $nummov,
                ];
-               
+
                if (!$query) {
                    return response()->json(['error' => 'Message codtipodoc not found'], 404);
                }else{
                    $query->query = str_replace(array_keys($replace), array_values($replace), $query->query);
                }
-               
+
                $responds = DB::connection('external')->select($query->query);
-               
+
                $pdf = Pdf::loadView('pdf',['responds' => $responds]);
                return $pdf->stream();
             //    return $pdf->download('pedido.pdf');
                 exit;
-               $response = $this->api($responds, $user, $query,$pdf); 
-   
+               $response = $this->api($responds, $user, $pdf,$query);
+
                if ($response) {
                    Log::info('Message sent successfully', ['response' => $response]);
                    return response()->json($response, 200);

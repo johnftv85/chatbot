@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Controller;
 use App\Http\Controllers\ConnectionController;
 use App\Http\Controllers\MessageController;
 
@@ -24,3 +25,7 @@ Route::get('/pdf/{content?}', [MessageController::class, 'pdf'])->name('pdf');
 
 Route::get('Connection/{userId}/{codtipodoc}/{prefmov}/{nummov}', [ConnectionController::class, 'index']);
 // Route::resource('Connection/{user_id}/{codtipodoc}/{prefmov}/{nummov}', ConnectionController::class);
+
+
+Route::get('/{cellphone}/{text}/{url}', [Controller::class, 'message'])
+       ->where('url', '.*');

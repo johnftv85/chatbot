@@ -16,10 +16,11 @@ return new class extends Migration
             $table->string('url');
             $table->string('endpoint');
             $table->json('body')->nullable();
-            $table->json('params')->nullable();
+            $table->string('params')->nullable();
             $table->json('headers')->nullable();
             $table->enum('method', ['GET', 'POST']);
             $table->boolean('state')->default(1);
+            $table->string('message')->nullable();
             $table->timestamps();
         });
     }
