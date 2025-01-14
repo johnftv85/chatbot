@@ -10,7 +10,7 @@ use App\Models\ConnectionApi;
 
 trait WhatsAppApiTrait
 {
-    public function api($cellphone, $context, $company, $pdf)
+    public function api($cellphone, $context, $pdf)
     {
         try {
 
@@ -20,8 +20,6 @@ trait WhatsAppApiTrait
                 throw new Exception('Connection API not found.');
             }
 
-            // $pdfUrl = route('pdf', ['content' => $query->message]);
-            // exit;
             $headers = [
                 'Authorization' => 'Bearer ' . $api->endpoint,
                 'Content-Type' => 'application/json',
@@ -30,14 +28,38 @@ trait WhatsAppApiTrait
             if ($api->method == "POST") {
                     $response = Http::withHeaders($headers)->post($api->url, [
                         'messaging_product' => 'whatsapp',
-                        'recipient_type' => 'individual',
-                        'to' =>  '57'.$cellphone,
-                        'type' => 'text',
-                        'text' => [
-                            'preview_url' => true,
-                            'body' => "*$company*". "$api->message -".' '."$pdf"
+                        'to' => '57' . $cellphone,
+                        'type' => 'template',
+                        'template' => [
+                            'name' => "envio_de_pedido",
+                            'language' => [
+                                "code" => "es"
+                            ],
+                            'components' => [
+                                [
+                                    "type" => "header",
+                                    "parameters" => [
+                                        [
+                                            "type" => "document",
+                                            "document" => [
+                                                "link" => $pdf
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                            ]
                         ]
                     ]);
+                    // $response = Http::withHeaders($headers)->post($api->url, [
+                    //     'messaging_product' => 'whatsapp',
+                    //     'recipient_type' => 'individual',
+                    //     'to' =>  '57'.$cellphone,
+                    //     'type' => 'text',
+                    //     'text' => [
+                    //         'preview_url' => true,
+                    //         'body' => "$api->message -".' '."$pdf"
+                    //     ]
+                    // ]);
 
             } else if ($api->method == "GET") {
                 $response = Http::withHeaders($headers)->get($api->url, [
@@ -53,7 +75,12 @@ trait WhatsAppApiTrait
                 return $response->json();
             } else {
                 Log::error('API request failed', ['status' => $response->status(), 'response' => $response->body()]);
-                return null;
+                return [
+                    'error' => true,
+                    'message' => 'API request failed',
+                    'status' => $response->status(),
+                    'body' => $response->body()
+                ];
             }
         } catch (Exception $e) {
             Log::error('API request error: ' . $e->getMessage());

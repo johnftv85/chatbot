@@ -20,5 +20,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/{cellphone}/{text}/{company}/{url}', [WhatsAppController::class, 'message'])
+Route::get('/{cellphone}/{text}/{url}', [WhatsAppController::class, 'message'])
        ->where('url', '.*');

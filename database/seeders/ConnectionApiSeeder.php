@@ -17,15 +17,13 @@ class ConnectionApiSeeder extends Seeder
             (object) [
                 'id' => 1,
                 'url' => 'https://graph.facebook.com/v19.0/320530111141654/messages',
-                'endpoint' => 'EAAElh0pME7IBO2uZBZCFRwBZBcG9e7cP7jMrxnUz4BiH8dVVnvfF3ZALP6LzevRugq3LU4zRqehMrH6rUI4TfIxTMsNH67Fyan58ZCJwmk07DscCNPwLdYQageRhYhEjXs20ZCYd5P364UDGKGSlkI4KVWWEs8MKcF7pIeYPvRknz4ofj5zft5ZCgQp1CLzE7HyhjNZBqsNP9QNWGV885DkCJTny',
+                'endpoint' => 'EAAElh0pME7IBO81XCWUtUgMh5ZC8aZAhRumiCJ7GpBF0zL0kkWxZCtFNjH7mEkAtceGZC6Rw3Nv5FLe3MdZBbJ9ZCZBXyHzswt49YUwNtaps9G5IpMtt2VIlwGF4M7I1jwGjzE8YRTDQQ6OdhS7C3KHX39ehhWdZBytuvJH2iYZCaZBZAnSgwGyxHBkbyW2bPLFvBmKbQZDZD',
                 'body' => '{"to": "3217924796", "text": {"body": "Saludos desde la api", "preview_url": false}, "type": "text", "recipient_type": "individual", "messaging_product": "whatsapp"}',
                 'headers' => '{"Content-Type": "application/json", "Authorization": "Bearer @endPoint"}',
                 'method' => 'POST',
                 'params' => 'pedido creado exitosamente',
                 'state' => 1,
-                'message' => '
-
-Pedido
+                'message' => 'Pedido
 
 Apreciado(a) Cliente:
 El Asesor Comercial. le ha enviado adjunto un documento con el comprobante del Pedido solicitado por usted.
