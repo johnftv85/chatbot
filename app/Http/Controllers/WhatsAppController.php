@@ -11,19 +11,22 @@ class WhatsAppController extends Controller
 {
     use WhatsAppApiTrait;
 
-    public function message($cellphone, $text, $company, $url)
+    public function message($cellphone, $text, $url)
     {
         $validator = Validator::make(
             [
                 'cellphone' => $cellphone,
                 'text' => $text,
-                'company' => $company,
                 'url' => $url,
             ],
             [
-                'cellphone' => 'required|numeric',
+                'cellphone' => [
+                    'required',
+                    'numeric',
+                    'digits:10',
+                    'regex:/^3[0-9]{9}$/'
+                ],
                 'text' => 'required|string',
-                'company' => 'required|string',
                 'url' => 'required|url',
             ]
         );
@@ -35,7 +38,8 @@ class WhatsAppController extends Controller
             ], 422);
         }
 
-        $response = $this->api($cellphone, $text, $company, $url);
+        $response = $this->api($cellphone, $text, $url);
+        return $response;
 
     }
 }
