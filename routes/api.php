@@ -3,7 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\WhatsAppController;
+use App\Http\Controllers\Api\WhatsAppController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -20,5 +21,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/{cellphone}/{text}/{url}', [WhatsAppController::class, 'message'])
+Route::post('/{cellphone}/{text}/{url?}', [WhatsAppController::class, 'message'])
        ->where('url', '.*');
