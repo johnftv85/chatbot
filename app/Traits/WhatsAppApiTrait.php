@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Jobs\SendMessageJob;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
@@ -10,11 +11,11 @@ use App\Models\ConnectionApi;
 
 trait WhatsAppApiTrait
 {
-    public function api($cellphone, $context, $pdf)
+    public function api($cellphone, $context, $pdf = null)
     {
         try {
 
-            $api =  ConnectionApi::where('params', $context)->first();
+            $api =  ConnectionApi::where('id', 1)->first();
 
             if (!$api ) {
                 throw new Exception('Connection API not found.');
@@ -26,6 +27,7 @@ trait WhatsAppApiTrait
             ];
 
             if ($api->method == "POST") {
+                if($pdf !== null){
                     $response = Http::withHeaders($headers)->post($api->url, [
                         'messaging_product' => 'whatsapp',
                         'to' => '57' . $cellphone,
@@ -50,17 +52,18 @@ trait WhatsAppApiTrait
                             ]
                         ]
                     ]);
-                    // $response = Http::withHeaders($headers)->post($api->url, [
-                    //     'messaging_product' => 'whatsapp',
-                    //     'recipient_type' => 'individual',
-                    //     'to' =>  '57'.$cellphone,
-                    //     'type' => 'text',
-                    //     'text' => [
-                    //         'preview_url' => true,
-                    //         'body' => "$api->message -".' '."$pdf"
-                    //     ]
-                    // ]);
-
+                }else{
+                    $response = Http::withHeaders($headers)->post($api->url, [
+                        'messaging_product' => 'whatsapp',
+                        'recipient_type' => 'individual',
+                        'to' =>  '57'.$cellphone,
+                        'type' => 'text',
+                        'text' => [
+                            'preview_url' => true,
+                            'body' => "$context \n---\nBex Soluciones"
+                        ]
+                    ]);
+                }
             } else if ($api->method == "GET") {
                 $response = Http::withHeaders($headers)->get($api->url, [
 
@@ -87,4 +90,15 @@ trait WhatsAppApiTrait
             return null;
         }
     }
+
+
+    public function dispatchMessage($cellphone, $context, $pdf = null)
+    {
+        SendMessageJob::dispatch($cellphone, $context, $pdf);
+
+        return [
+            'status' => 'queued',
+            'message' => 'The message has been queued for delivery.',
+        ];
+}
 }
