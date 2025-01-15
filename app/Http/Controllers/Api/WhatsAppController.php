@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
+use App\Jobs\SendMessageJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -24,11 +26,6 @@ class WhatsAppController extends Controller
             'url' => 'nullable|url',
         ];
 
-        // if ($url !== null) {
-        //     $rules['url'] = 'required|url';
-        // }
-
-        // Validar los datos
         $validator = Validator::make(
             [
                 'cellphone' => $cellphone,
@@ -46,10 +43,11 @@ class WhatsAppController extends Controller
         }
 
         try {
-            $response = $this->api($cellphone, $text, $url);
+            dispatch(new SendMessageJob($cellphone, $text, $url));
+
             return response()->json([
                 'status' => 'success',
-                'response' => $response
+                'message' => 'Message has been queued for delivery.'
             ]);
         } catch (\Exception $e) {
             return response()->json([
