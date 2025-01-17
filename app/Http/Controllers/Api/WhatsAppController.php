@@ -8,42 +8,30 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 use App\Traits\WhatsAppApiTrait;
+use Exception;
 
 class WhatsAppController extends Controller
 {
     use WhatsAppApiTrait;
 
-    public function message($cellphone, $text, $url = null)
+    public function message(Request $request)
     {
-        $rules = [
+        $validator = $request->validate([
             'cellphone' => [
                 'required',
-                'numeric',
-                'digits:10',
-                'regex:/^3[0-9]{9}$/'
+                'regex:/^\d{12}$/',
             ],
-            'text' => 'required|string',
-            'url' => 'nullable|url',
-        ];
+            'message' => 'required|string',
+            'attachment' => 'nullable|url',
+        ]);
 
-        $validator = Validator::make(
-            [
-                'cellphone' => $cellphone,
-                'text' => $text,
-                'url' => $url,
-            ],
-            $rules
-        );
-
-        if ($validator->fails()) {
-            return response()->json([
-                'error' => 'Validation failed',
-                'messages' => $validator->errors(),
-            ], 422);
-        }
+        // Obtener los valores enviados
+        $cellphone = $validator['cellphone'];
+        $message = $validator['message'];
+        $attachment = $validator['attachment'] ?? null;
 
         try {
-            dispatch(new SendMessageJob($cellphone, $text, $url));
+            dispatch(new SendMessageJob($cellphone, $message, $attachment));
 
             return response()->json([
                 'status' => 'success',
@@ -57,6 +45,60 @@ class WhatsAppController extends Controller
             ], 500);
         }
 
+    }
+
+    public function verifyWebhook(Request $request)
+    {
+        try{
+            $verifytoken = 'chatbot122185';
+            $query = $request->query();
+
+            $mode = $query['hub_mode'];
+            $challenge = $query['hub_challenge'];
+            $token = $query['hub_verify_token'];
+
+            if($mode && $token){
+                if($mode == 'subscribe' && $token == $verifytoken){
+                    return response($challenge, 200)->header('Content-Type', 'text/plain');
+                }
+            }
+
+            throw new Exception('Invalid request');
+
+        }catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to send message.',
+                'details' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function processWebhook(Request $request)
+    {
+        try{
+
+            $bodyContent = json_decode($request->getContent(),true);
+
+            $value = $bodyContent['entry']['0']['changes']['0']['value'];
+            $body = '';
+            if(!empty($value['messages'])){
+                if($value['messages']['0']['type'] == 'text'){
+                    $body = $value['messages']['0']['text']['body'];
+                };
+            };
+            return response()->json([
+                'status' => true,
+                'body' => $body
+            ], 200);
+
+        }catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to send message.',
+                'details' => $e->getMessage()
+            ], 500);
+        }
     }
 
 }
