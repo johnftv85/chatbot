@@ -1,10 +1,11 @@
 <?php
 
+use App\Http\Controllers\Api\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Api\WhatsAppController;
-
+use Illuminate\Routing\Route as RoutingRoute;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,6 +21,16 @@ use App\Http\Controllers\Api\WhatsAppController;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+Route::get('/whatsapp-webhook',[WhatsAppController::class,'verifyWebhook']);
+Route::post('/whatsapp-webhook',[WhatsAppController::class,'processWebhook']);
 
-Route::post('/{cellphone}/{text}/{url?}', [WhatsAppController::class, 'message'])
-       ->where('url', '.*');
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+
+Route::middleware(['auth:sanctum'])->group( function (){
+    Route::get('/logout', [AuthController::class, 'logout']);
+    Route::post('/singlewh', [WhatsAppController::class, 'message']);
+});
+
+
+

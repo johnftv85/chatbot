@@ -14,16 +14,16 @@ class SendMessageJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, WhatsAppApiTrait;
 
     protected $cellphone;
-    protected $context;
+    protected $message;
     protected $pdf;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($cellphone, $context, $pdf = null)
+    public function __construct($cellphone, $message, $pdf = null)
     {
         $this->cellphone = $cellphone;
-        $this->context = $context;
+        $this->message = $message;
         $this->pdf = $pdf;
     }
 
@@ -32,6 +32,6 @@ class SendMessageJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $this->api($this->cellphone, $this->context, $this->pdf);
+        $this->api($this->cellphone, $this->message, $this->pdf);
     }
 }
