@@ -11,7 +11,7 @@ use App\Models\ConnectionApi;
 
 trait WhatsAppApiTrait
 {
-    public function api($cellphone, $context, $pdf = null)
+    public function api($cellphone, $message, $pdf = null)
     {
         try {
 
@@ -30,7 +30,7 @@ trait WhatsAppApiTrait
                 if($pdf !== null){
                     $response = Http::withHeaders($headers)->post($api->url, [
                         'messaging_product' => 'whatsapp',
-                        'to' => '57' . $cellphone,
+                        'to' => $cellphone,
                         'type' => 'template',
                         'template' => [
                             'name' => "envio_de_pedido",
@@ -56,11 +56,11 @@ trait WhatsAppApiTrait
                     $response = Http::withHeaders($headers)->post($api->url, [
                         'messaging_product' => 'whatsapp',
                         'recipient_type' => 'individual',
-                        'to' =>  '57'.$cellphone,
+                        'to' => $cellphone,
                         'type' => 'text',
                         'text' => [
-                            'preview_url' => true,
-                            'body' => "$context \n---\nBex Soluciones"
+                            'preview_url' => false,
+                            'body' => "$message \n---\nBex Soluciones"
                         ]
                     ]);
                 }
@@ -92,13 +92,13 @@ trait WhatsAppApiTrait
     }
 
 
-    public function dispatchMessage($cellphone, $context, $pdf = null)
+    public function dispatchMessage($cellphone, $message, $pdf = null)
     {
-        SendMessageJob::dispatch($cellphone, $context, $pdf);
+        SendMessageJob::dispatch($cellphone, $message, $pdf);
 
         return [
             'status' => 'queued',
             'message' => 'The message has been queued for delivery.',
         ];
-}
+    }
 }
