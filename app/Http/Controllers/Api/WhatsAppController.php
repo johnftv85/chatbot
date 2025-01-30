@@ -4,11 +4,20 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\SendMessageJob;
+use App\Models\Message;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use Ramsey\Uuid\Uuid;
+use App\Models\TransactionalOrder;
+use Illuminate\Support\Facades\DB;
 use App\Traits\WhatsAppApiTrait;
 use Exception;
+use App\Events\Webhook;
+use Carbon\Carbon;
+use Illuminate\Container\Attributes\Auth;
+
 
 class WhatsAppController extends Controller
 {
@@ -16,28 +25,67 @@ class WhatsAppController extends Controller
 
     public function message(Request $request)
     {
+        $user = request()->user();
+        if (!$user) {
+            return response()->json(['error' => 'Usuario no autenticado'], 401);
+        }
+
         $validator = $request->validate([
-            'cellphone' => [
-                'required',
-                'regex:/^\d{12}$/',
-            ],
-            'message' => 'required|string',
+            'cellphone' => 'required|regex:/^(\d{12})(;\d{12})*$/',
+            'message' => 'required|string|max:500',
             'attachment' => 'nullable|url',
+            'schedule' => 'nullable|date|after_or_equal:now',
         ]);
 
-        // Obtener los valores enviados
-        $cellphone = $validator['cellphone'];
-        $message = $validator['message'];
+        $cellphones = array_filter(array_map('trim', explode(';', $validator['cellphone'])));
+        $cleanMessage = preg_replace("/\s+/", " ", $validator['message']);
+        $schedule = $validator['schedule'] ?? null;
         $attachment = $validator['attachment'] ?? null;
 
         try {
-            dispatch(new SendMessageJob($cellphone, $message, $attachment));
+            $transactionCode = Uuid::uuid1();
+
+            foreach ($cellphones as $cellphone) {
+                $transaction = TransactionalOrder::create([
+                    'status' => '9',
+                    'message' => $cleanMessage,
+                    'ip' => $request->ip(),
+                    'user_id' => $user->id,
+                    'cellphone' => $cellphone,
+                    'transaction_code' => $transactionCode,
+                    'attachment' => $attachment,
+                    'schedule' => $schedule,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+
+                if ($schedule) {
+                    dispatch((new SendMessageJob(
+                        $cellphone,
+                        $cleanMessage,
+                        $attachment,
+                        $transaction->id))
+                        ->delay(Carbon::parse($schedule)));
+                } else {
+                    dispatch(new SendMessageJob(
+                        $cellphone,
+                        $cleanMessage,
+                        $attachment,
+                        $transaction->id));
+                }
+            }
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Message has been queued for delivery.'
+                'message' => 'Message has been queued for delivery.',
+                'transaction_code' =>  $transactionCode
             ]);
         } catch (\Exception $e) {
+            Log::error('Error al enviar mensaje:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to send message.',
@@ -80,13 +128,61 @@ class WhatsAppController extends Controller
 
             $bodyContent = json_decode($request->getContent(),true);
 
-            $value = $bodyContent['entry']['0']['changes']['0']['value'];
+            $value = $bodyContent['entry'][0]['changes'][0]['value'];
             $body = '';
-            if(!empty($value['messages'])){
-                if($value['messages']['0']['type'] == 'text'){
-                    $body = $value['messages']['0']['text']['body'];
-                };
-            };
+            $error = 'whatsapp';
+
+            if (! empty($value['statuses'])) {
+                $status = $value['statuses'][0]['status']; // sent, delivered, read, failed
+                $wam = Message::where('wam_id', $value['statuses'][0]['id'])->first();
+                if($status == 'failed'){
+                    $error = $value['statuses'][0]['errors'][0]['message']; ;
+                }
+                if (! empty($wam->id)) {
+                    $wam->status = $status;
+                    $wam->body = $error;
+                    $wam->updated_at = now();
+                    $wam->save();
+
+                    $transaction = $this->_updateTransaction(
+                        $status,
+                        $wam->wam_id,
+                        $wam->wa_id
+                    );
+                    // Webhook::dispatch($wam, true);
+                }
+
+            } elseif (!empty($value['messages'])) { // Message
+                $exists = Message::where('wam_id', $value['messages'][0]['id'])->first();
+
+                if (empty($exists->id)) {
+                    // $mediaSupported = ['audio', 'document', 'image', 'video', 'sticker'];
+
+                    if ($value['messages'][0]['type'] == 'text') {
+                        $message = $this->_saveMessage(
+                            $value['messages'][0]['text']['body'],
+                            'text',
+                            $value['messages'][0]['from'],
+                            $value['messages'][0]['id'],
+                            $value['messages'][0]['timestamp']
+                        );
+
+                        // Webhook::dispatch($message, false);
+                    } else {
+                        $type = $value['messages'][0]['type'];
+                        if (!empty($value['messages'][0][$type])) {
+                            $message = $this->_saveMessage(
+                                "($type): \n _".serialize($value['messages'][0][$type]).'_',
+                                'other',
+                                $value['messages'][0]['from'],
+                                $value['messages'][0]['id'],
+                                $value['messages'][0]['timestamp']
+                            );
+                        }
+                        // Webhook::dispatch($message, false);
+                    }
+                }
+            }
             return response()->json([
                 'status' => true,
                 'body' => $body
@@ -99,6 +195,53 @@ class WhatsAppController extends Controller
                 'details' => $e->getMessage()
             ], 500);
         }
+    }
+
+    private function _saveMessage($message, $messageType, $waId, $wamId, $timestamp = null, $caption = null, $data = '')
+    {
+        $wam = new Message();
+        $wam->body = $message;
+        $wam->outgoing = false;
+        $wam->type = $messageType;
+        $wam->wa_id = $waId;
+        $wam->wam_id = $wamId;
+        $wam->status = 'sent';
+        $wam->caption = $caption;
+        $wam->data = $data;
+
+        if (! is_null($timestamp)) {
+            $wam->created_at = Carbon::createFromTimestamp($timestamp)->toDateTimeString();
+            $wam->updated_at = Carbon::createFromTimestamp($timestamp)->toDateTimeString();
+        }
+        $wam->save();
+
+        return $wam;
+    }
+
+    private function _updateTransaction($status, $wam_message_id, $waId = null, $timestamp = null)
+    {
+        $transaccion = TransactionalOrder::where('wam_message_id', $wam_message_id)->first();
+        if (!is_null($waId)) {
+            $transaccion->where('cellphone', $waId);
+        }
+        switch ($status) {
+            case 'delivered':
+                $transaccion->status = 2;
+                break;
+            case 'failed':
+                $transaccion->status = 3;
+                break;
+            default:
+                $transaccion->status = 0;
+                break;
+        }
+
+        if (! is_null($timestamp)) {
+            $transaccion->updated_at = Carbon::createFromTimestamp($timestamp)->toDateTimeString();
+        }
+        $transaccion->save();
+
+        return $transaccion;
     }
 
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuthorizedIp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -43,6 +44,19 @@ class AuthController extends Controller
     // Inicio de sesión
     public function login(Request $request)
     {
+        $ip = $request->ip();
+
+        $authorizedIps = cache()->remember('authorized_ips', 3600, function () {
+            return AuthorizedIp::pluck('ip_address')->toArray();
+        });
+
+        if (!in_array($ip, $authorizedIps)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'IP no autorizada para realizar esta petición.'
+            ], 403);
+        }
+
         $validated = $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string',
