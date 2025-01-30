@@ -47,4 +47,9 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function transactionalOrders()
+    {
+        return $this->hasMany(TransactionalOrder::class, 'transaction_id');
+    }
 }

@@ -15,7 +15,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             UserSeeder::class,
-            // AreaSeeder::class,
+            AuthorizedIpsSeeder::class,
             // QuerySeeder::class,
             ConnectionApiSeeder::class,
         ]);
