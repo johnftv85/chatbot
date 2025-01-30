@@ -2,16 +2,19 @@
 
 namespace App\Traits;
 
-use App\Jobs\SendMessageJob;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use Carbon\Carbon;
 
+use App\Jobs\SendMessageJob;
+use App\Models\Message;
 use App\Models\ConnectionApi;
+use App\Models\TransactionalOrder;
 
 trait WhatsAppApiTrait
 {
-    public function api($cellphone, $message, $pdf = null)
+    public function api($cellphone, $message, $attachment = null,$transaction)
     {
         try {
 
@@ -27,24 +30,33 @@ trait WhatsAppApiTrait
             ];
 
             if ($api->method == "POST") {
-                if($pdf !== null){
+                if($attachment !== null){
                     $response = Http::withHeaders($headers)->post($api->url, [
                         'messaging_product' => 'whatsapp',
                         'to' => $cellphone,
                         'type' => 'template',
                         'template' => [
-                            'name' => "envio_de_pedido",
+                            'name' => "ventas",
                             'language' => [
                                 "code" => "es"
                             ],
                             'components' => [
+                                [
+                                    'type' => 'body',
+                                    'parameters' => [
+                                        [
+                                            'type' => 'text',
+                                            'text' => $message
+                                        ]
+                                    ]
+                                ],
                                 [
                                     "type" => "header",
                                     "parameters" => [
                                         [
                                             "type" => "document",
                                             "document" => [
-                                                "link" => $pdf
+                                                "link" => $attachment
                                             ]
                                         ]
                                     ]
@@ -55,12 +67,24 @@ trait WhatsAppApiTrait
                 }else{
                     $response = Http::withHeaders($headers)->post($api->url, [
                         'messaging_product' => 'whatsapp',
-                        'recipient_type' => 'individual',
                         'to' => $cellphone,
-                        'type' => 'text',
-                        'text' => [
-                            'preview_url' => false,
-                            'body' => "$message \n---\nBex Soluciones"
+                        'type' => 'template',
+                        'template' => [
+                            'name' => 'mensajes',
+                            'language' => [
+                                'code' => 'es'
+                            ],
+                            'components' => [
+                                [
+                                    'type' => 'body',
+                                    'parameters' => [
+                                        [
+                                            'type' => 'text',
+                                            'text' => $message
+                                        ]
+                                    ]
+                                ]
+                            ]
                         ]
                     ]);
                 }
@@ -72,19 +96,36 @@ trait WhatsAppApiTrait
                 throw new Exception('Unsupported HTTP method.');
             }
 
-            Log::info('API response received', ['status' => $response->status(), 'body' => $response->body()]);
+
+            $responseBody = json_decode($response->body(), true);
+
+            Log::info('API Response Body:', ['response' => $responseBody]);
 
             if ($response->successful()) {
-                return $response->json();
-            } else {
-                Log::error('API request failed', ['status' => $response->status(), 'response' => $response->body()]);
-                return [
-                    'error' => true,
-                    'message' => 'API request failed',
-                    'status' => $response->status(),
-                    'body' => $response->body()
-                ];
+                if (isset($responseBody['messaging_product'], $responseBody['contacts'][0]['wa_id'], $responseBody['messages'][0]['id'])) {
+                    $message = $this->_saveMessage(
+                        $responseBody['messaging_product'],
+                        'text',
+                        $responseBody['contacts'][0]['wa_id'],
+                        $responseBody['messages'][0]['id'],
+                        now(),
+                        $transaction,
+                    );
+
+                    $updateTransaction = TransactionalOrder::find($transaction);
+                    $updateTransaction->wam_message_id = $responseBody['messages'][0]['id'];
+                    $updateTransaction->status = '1';
+                    $updateTransaction->save();
+
+                    Log::info('API Response Body: ok');
+
+                    return $responseBody;
+                } else {
+                    Log::error('Unexpected API response structure', ['response' => $responseBody]);
+                    throw new Exception('Invalid response structure.');
+                }
             }
+
         } catch (Exception $e) {
             Log::error('API request error: ' . $e->getMessage());
             return null;
@@ -92,13 +133,35 @@ trait WhatsAppApiTrait
     }
 
 
-    public function dispatchMessage($cellphone, $message, $pdf = null)
+    public function dispatchMessage($cellphone, $message, $attachment = null)
     {
-        SendMessageJob::dispatch($cellphone, $message, $pdf);
+        SendMessageJob::dispatch($cellphone, $message, $attachment);
 
         return [
             'status' => 'queued',
             'message' => 'The message has been queued for delivery.',
         ];
+    }
+
+    private function _saveMessage($message, $messageType, $waId, $wamId, $timestamp = null,$transaction,$caption = null, $data = '')
+    {
+        $wam = new Message();
+        $wam->body = $message;
+        $wam->outgoing = false;
+        $wam->type = $messageType;
+        $wam->wa_id = $waId;
+        $wam->wam_id = $wamId;
+        $wam->status = 'sent';
+        $wam->caption = $caption;
+        $wam->data = $data;
+        $wam->transaction_id = $transaction;
+
+        if (! is_null($timestamp)) {
+            $wam->created_at = Carbon::createFromTimestamp($timestamp)->toDateTimeString();
+            $wam->updated_at = Carbon::createFromTimestamp($timestamp)->toDateTimeString();
+        }
+        $wam->save();
+
+        return $wam;
     }
 }
