@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use \stdClass;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -49,6 +50,9 @@ class AuthController extends Controller
         $authorizedIps = cache()->remember('authorized_ips', 3600, function () {
             return AuthorizedIp::pluck('ip_address')->toArray();
         });
+
+        Log::info('IP detectada:', ['ip' => $ip]);
+        Log::info('IPs permitidas:', ['ips' => $authorizedIps]);
 
         if (!in_array($ip, $authorizedIps)) {
             return response()->json([
