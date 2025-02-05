@@ -16,5 +16,6 @@ class AuthorizedIpsSeeder extends Seeder
         AuthorizedIp::create(['ip_address' => '104.154.206.97', 'description' => 'Servidor de pruebas']);
         AuthorizedIp::create(['ip_address' => '34.94.155.169', 'description' => 'Servidor 17']);
         AuthorizedIp::create(['ip_address' => '127.0.0.1', 'description' => 'Servidor Local']);
+        AuthorizedIp::create(['ip_address' => '181.58.39.116', 'description' => 'Ip local']);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Emoticon;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -18,6 +19,7 @@ class DatabaseSeeder extends Seeder
             AuthorizedIpsSeeder::class,
             // QuerySeeder::class,
             ConnectionApiSeeder::class,
+            EmoticonsSeeder::class,
         ]);
         // User::factory(10)->create();
 

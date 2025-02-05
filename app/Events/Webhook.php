@@ -14,6 +14,9 @@ class Webhook
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    public $message;
+    public $change;
+
     /**
      * Create a new event instance.
      */

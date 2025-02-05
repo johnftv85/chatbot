@@ -12,7 +12,9 @@ use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
 use App\Models\TransactionalOrder;
 use Illuminate\Support\Facades\DB;
+
 use App\Traits\WhatsAppApiTrait;
+use App\Traits\ChatGptResponseTrait;
 use Exception;
 use App\Events\Webhook;
 use Carbon\Carbon;
@@ -21,7 +23,7 @@ use Illuminate\Container\Attributes\Auth;
 
 class WhatsAppController extends Controller
 {
-    use WhatsAppApiTrait;
+    use WhatsAppApiTrait, ChatGptResponseTrait;
 
     public function message(Request $request)
     {
@@ -34,16 +36,21 @@ class WhatsAppController extends Controller
             'cellphone' => 'required|regex:/^(\d{12})(;\d{12})*$/',
             'message' => 'required|string|max:500',
             'attachment' => 'nullable|url',
-            'schedule' => 'nullable|date|after_or_equal:now',
+            'schedule' => 'nullable|date_format:Y-m-d H:i:s|after_or_equal:now',
+            'chatgpt' => 'nullable|boolean',
         ]);
 
         $cellphones = array_filter(array_map('trim', explode(';', $validator['cellphone'])));
-        $cleanMessage = preg_replace("/\s+/", " ", $validator['message']);
+        $cleanMessage = trim(preg_replace("/\s+/", " ", $validator['message']));
+        $cleanMessage = html_entity_decode($cleanMessage, ENT_QUOTES, 'UTF-8');
+        $cleanMessage = urldecode($cleanMessage);
         $schedule = $validator['schedule'] ?? null;
         $attachment = $validator['attachment'] ?? null;
+        $chatgpt = $validator['chatgpt'] ?? false;
 
         try {
             $transactionCode = Uuid::uuid1();
+            $aiMessage = $chatgpt ? $this->getChatGptResponse($cleanMessage) : $cleanMessage;
 
             foreach ($cellphones as $cellphone) {
                 $transaction = TransactionalOrder::create([
@@ -59,19 +66,17 @@ class WhatsAppController extends Controller
                     'updated_at' => now()
                 ]);
 
+                $job = new SendMessageJob(
+                    $cellphone,
+                    $aiMessage,
+                    $attachment,
+                    $transaction->id
+                );
+
                 if ($schedule) {
-                    dispatch((new SendMessageJob(
-                        $cellphone,
-                        $cleanMessage,
-                        $attachment,
-                        $transaction->id))
-                        ->delay(Carbon::parse($schedule)));
+                    dispatch($job->delay(Carbon::parse($schedule)));
                 } else {
-                    dispatch(new SendMessageJob(
-                        $cellphone,
-                        $cleanMessage,
-                        $attachment,
-                        $transaction->id));
+                    dispatch($job);
                 }
             }
 
@@ -92,7 +97,6 @@ class WhatsAppController extends Controller
                 'details' => $e->getMessage()
             ], 500);
         }
-
     }
 
     public function verifyWebhook(Request $request)
