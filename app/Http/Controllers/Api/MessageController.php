@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Emoticon;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
@@ -48,5 +49,28 @@ class MessageController extends Controller
             'error' => $e->getMessage(),
         ], 500);
     }
+   }
+
+   public function getEmoticons(Request $request)
+   {
+       $validatedData = $request->validate([
+           'description' => 'nullable|string|max:255',
+       ]);
+
+       $description = $validatedData['description'] ?? '';
+
+       $emoticons = Emoticon::where('description', 'like', "%$description%")->get()->map(function ($emoticon) {
+        return [
+            'id' => $emoticon->id,
+            'code' => $emoticon->code,
+            'description' => $emoticon->description,
+            'emoticon' => urldecode($emoticon->code)
+            ];
+        });
+
+       return response()->json([
+           'status' => 'success',
+           'emoticons' => $emoticons,
+       ]);
    }
 }
