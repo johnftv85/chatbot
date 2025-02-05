@@ -67,17 +67,22 @@ class TransactionalOrderController extends Controller
             return response()->json(['error' => 'Usuario no autenticado'], 401);
         }
         $request->validate([
-            'startdate' => 'required|date',
-            'enddate' => 'required|date|after_or_equal:startdate'
+            'startdate' => 'required|date_format:Y-m-d',
+            'enddate' => 'required|date_format:Y-m-d|after_or_equal:startdate',
+            'status' => 'nullable|integer'
         ]);
 
         $startDate = $request->input('startdate');
         $endDate = $request->input('enddate');
+        $status = $request->input('status');
 
         try {
             $transactions = TransactionalOrder::with('messages')
             ->where('user_id', $user->id)
             ->whereBetween('created_at', [$startDate, $endDate])
+            ->when(!empty($status), function ($query) use ($status) {
+                return $query->where('status', $status);
+            })
             ->get();
 
             if ($transactions->isEmpty()) {

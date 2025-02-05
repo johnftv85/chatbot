@@ -35,6 +35,7 @@ Route::middleware(['auth:sanctum'])->group( function (){
     Route::post('/singlewh', [WhatsAppController::class, 'message']);
     Route::get('/statuswh', [TransactionalOrderController::class, 'statuswh']);
     Route::get('/reportuser', [TransactionalOrderController::class, 'reportuser']);
+    Route::post('/get-emoticons', [MessageController::class, 'getEmoticons']);
     Route::apiResources([
         'message' => MessageController::class,
     ]);
