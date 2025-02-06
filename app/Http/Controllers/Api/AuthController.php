@@ -42,7 +42,6 @@ class AuthController extends Controller
         ]);
     }
 
-    // Inicio de sesión
     public function login(Request $request)
     {
         $ip = $request->ip();
@@ -80,7 +79,6 @@ class AuthController extends Controller
         ]);
     }
 
-    // Cierre de sesión
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();

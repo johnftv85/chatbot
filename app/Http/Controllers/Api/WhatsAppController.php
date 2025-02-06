@@ -50,7 +50,7 @@ class WhatsAppController extends Controller
 
         try {
             $transactionCode = Uuid::uuid1();
-            $aiMessage = $chatgpt ? $this->getChatGptResponse($cleanMessage) : $cleanMessage;
+            $aiMessage = $chatgpt ? $this->cleanMessageForWhatsApp($this->getChatGptResponse($cleanMessage,null)) : $cleanMessage;
 
             foreach ($cellphones as $cellphone) {
                 $transaction = TransactionalOrder::create([
@@ -247,5 +247,14 @@ class WhatsAppController extends Controller
 
         return $transaccion;
     }
+
+    private function cleanMessageForWhatsApp($message) {
+        $message = preg_replace("/[\r\n\t]+/", " ", $message);
+
+        $message = preg_replace('/\s{2,}/', ' ', $message);
+
+        return trim($message);
+    }
+
 
 }
