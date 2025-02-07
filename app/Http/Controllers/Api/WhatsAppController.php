@@ -54,7 +54,7 @@ class WhatsAppController extends Controller
 
             foreach ($cellphones as $cellphone) {
                 $transaction = TransactionalOrder::create([
-                    'status' => '9',
+                    'status' => '0',
                     'message' => $cleanMessage,
                     'ip' => $request->ip(),
                     'user_id' => $user->id,
@@ -142,7 +142,7 @@ class WhatsAppController extends Controller
                 if($status == 'failed'){
                     $error = $value['statuses'][0]['errors'][0]['message']; ;
                 }
-                if (! empty($wam->id)) {
+                if (!empty($wam->id)) {
                     $wam->status = $status;
                     $wam->body = $error;
                     $wam->updated_at = now();
@@ -230,6 +230,9 @@ class WhatsAppController extends Controller
         }
         switch ($status) {
             case 'delivered':
+                $transaccion->status = 1;
+                break;
+            case 'read':
                 $transaccion->status = 2;
                 break;
             case 'failed':
