@@ -349,7 +349,360 @@ class EmoticonsSeeder extends Seeder
             'description' => 'Cara que revolea los ojos.'
         ]);
 
+        Emoticon::create([
+            'code' => urlencode('😯'),
+            'description' => 'Cara estupefacta.'
+        ]);
 
+        Emoticon::create([
+            'code' => urlencode('😮'),
+            'description' => 'Cara con la boca abierta.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('😲'),
+            'description' => 'Cara asombrada.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('🥱'),
+            'description' => 'Cara de bostezo.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('😴'),
+            'description' => 'Cara durmiendo.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('🤤'),
+            'description' => 'Cara que babea.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('😪'),
+            'description' => 'Cara de sueño.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('😵'),
+            'description' => 'Cara mareada.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('🤐'),
+            'description' => 'Cara con cierre en la boca.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('🥴'),
+            'description' => 'Cara desencajada.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('🤢'),
+            'description' => 'Cara de náuseas.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('🤮'),
+            'description' => 'Cara que vomita.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('🤧'),
+            'description' => 'Cara que se suena la nariz.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('😷'),
+            'description' => 'Cara con barbijo.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('🤒'),
+            'description' => 'Cara con un termómetro en la boca.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('🤕'),
+            'description' => 'Cara con un venda en la cabeza.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('🤑'),
+            'description' => 'Cara con ojos y lengua de dinero.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('🤠'),
+            'description' => 'Cara con sombrero de vaquero.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('🤲🏼'),
+            'description' => 'Palmas juntas hacia arriba.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('👐🏼'),
+            'description' => 'Manos abiertas.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('🙌🏼'),
+            'description' => 'Manos levantadas que celebran.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('👍🏻'),
+            'description' => 'Pulgar hacia arriba.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('👎🏼'),
+            'description' => 'Pulgar hacia abajo.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('👊🏼'),
+            'description' => 'Puño cerrado.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('✊🏼'),
+            'description' => 'Puño en alto.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('🤛🏼'),
+            'description' => 'Puño hacia la izquierda.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('🤜🏼'),
+            'description' => 'Puño hacia la derecha.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('🤞🏼'),
+            'description' => 'Dedos cruzados.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('✌🏼'),
+            'description' => 'Dedos en V.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('🤟🏼'),
+            'description' => 'Gesto de te quiero.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('👌🏼'),
+            'description' => 'Señal de aprobación.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('🤏🏼'),
+            'description' => 'Mano que pellizca.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('👈🏼'),
+            'description' => 'Mano que señala hacia la izquierda.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('👉🏼'),
+            'description' => 'Mano que señala hacia la derecha.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('👆🏼'),
+            'description' => 'Mano que señala hacia arriba.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('👇🏼'),
+            'description' => 'Mano que señala hacia abajo.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('✋🏼'),
+            'description' => 'Palma de la mano.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('🤚🏼'),
+            'description' => 'Dorso de la mano.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('🖐🏼'),
+            'description' => 'Mano abierta.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('🖖🏼'),
+            'description' => 'Saludo vulcano.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('👋🏼'),
+            'description' => 'Mano que saluda.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('🤙🏼'),
+            'description' => 'Mano que hace el gesto de llamar.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('💪🏼'),
+            'description' => 'Bíceps flexionado.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('🦾'),
+            'description' => 'Bíceps biónico flexionado.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('✍🏼'),
+            'description' => 'Mano que escribe.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('🙏🏼'),
+            'description' => 'Manos en oración.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('🦶🏼'),
+            'description' => 'Pie.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('🦵🏼'),
+            'description' => 'Pierna.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('🦿'),
+            'description' => 'Pierna biónica.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('❤️'),
+            'description' => 'Amor.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('🧡'),
+            'description' => 'Amor de amigos.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('💛'),
+            'description' => 'Amor puro y sincero.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('💚'),
+            'description' => 'Amor a la naturaleza.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('💙'),
+            'description' => 'Amor con seguridad y confianza.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('💜'),
+            'description' => 'Amor prohibido u oculto.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('🖤'),
+            'description' => 'Símbolo del humor negro.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('🤍'),
+            'description' => 'Amor hacia una persona fallecida.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('🤎'),
+            'description' => 'Utilizado para discutir temas relacionados con la identidad racial.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('💔'),
+            'description' => 'Corazón roto.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('💕'),
+            'description' => 'El mor está en el aire.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('💞'),
+            'description' => 'Representa el amor entre dos personas.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('💓'),
+            'description' => 'Corazón latiendo.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('💗'),
+            'description' => 'El amor está en crecimiento.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('💖'),
+            'description' => 'Corazón con estrellas.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('💘'),
+            'description' => 'Corazón flechado de cupido.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('🚚'),
+            'description' => 'Camión De Reparto.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('🚀 '),
+            'description' => 'Cohete'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('✅'),
+            'description' => 'Botón De Marca De Verificación.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('💯 '),
+            'description' => 'Cien Puntos.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('🎉 '),
+            'description' => 'Cañón De Confeti.'
+        ]);
+
+        Emoticon::create([
+            'code' => urlencode('🛵'),
+            'description' => 'Moto Scooter.'
+        ]);
 
     }
 }

@@ -61,24 +61,37 @@ class TransactionalOrderController extends Controller
 
     public function reportuser(Request $request)
     {
-
         $user = request()->user();
+
         if (!$user) {
             return response()->json(['error' => 'Usuario no autenticado'], 401);
         }
+
         $request->validate([
             'startdate' => 'required|date_format:Y-m-d',
             'enddate' => 'required|date_format:Y-m-d|after_or_equal:startdate',
-            'status' => 'nullable|integer'
+            'status' => 'nullable|integer',
+            'account' => 'nullable|string',
         ]);
 
         $startDate = $request->input('startdate');
         $endDate = $request->input('enddate');
         $status = $request->input('status');
+        $account = $request->input('account');
 
         try {
-            $transactions = TransactionalOrder::with('messages')
-            ->where('user_id', $user->id)
+            $transactions = TransactionalOrder::with(['messages', 'user'])
+            ->when($user->email !== 'super@bexsoluciones.com', function ($query) use ($user, $account) {
+                if ($account) {
+                    if ($account !== $user->email) {
+                        return $query->whereRaw('1 = 0'); // Devuelve cero resultados
+                    }
+                    return $query->whereHas('user', function ($q) use ($account) {
+                        $q->where('email', $account);
+                    });
+                }
+                return $query->where('user_id', $user->id);
+            })
             ->whereBetween('created_at', [$startDate, $endDate])
             ->when(!empty($status), function ($query) use ($status) {
                 return $query->where('status', $status);
@@ -96,6 +109,8 @@ class TransactionalOrderController extends Controller
                 return [
                     'id' => $transaction->id,
                     'transaction_status' => $transaction->status,
+                    'created_by' => $transaction->user ? $transaction->user->email : 'Unknown',
+                    'date' => $transaction->created_at->format('Y-m-d H:i:s'),
                     'messages' => $transaction->messages->map(function ($message) {
                         return [
                             'wa_id' => $message->wa_id,
@@ -104,7 +119,7 @@ class TransactionalOrderController extends Controller
                             'date' => $message->updated_at->format('Y-m-d H:i:s'),
                         ];
                     }),
-                    'date' => $transaction->created_at->format('Y-m-d H:i:s'),
+
                 ];
             });
 
