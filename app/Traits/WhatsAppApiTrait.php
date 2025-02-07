@@ -70,7 +70,7 @@ trait WhatsAppApiTrait
                         'to' => $cellphone,
                         'type' => 'template',
                         'template' => [
-                            'name' => 'mensajes',
+                            'name' => 'message',
                             'language' => [
                                 'code' => 'es'
                             ],
@@ -114,7 +114,7 @@ trait WhatsAppApiTrait
 
                     $updateTransaction = TransactionalOrder::find($transaction);
                     $updateTransaction->wam_message_id = $responseBody['messages'][0]['id'];
-                    $updateTransaction->status = '1';
+                    $updateTransaction->status = '9';
                     $updateTransaction->save();
 
                     Log::info('API Response Body: ok');

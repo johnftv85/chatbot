@@ -20,6 +20,12 @@ class UserSeeder extends Seeder
                 'email' => 'webmaster@bexsoluciones.com',
                 'password' => 'Bexsoluciones'
             ],
+            (object) [
+                'id' => 2,
+                'name' => 'super@bexsoluciones.com',
+                'email' => 'super@bexsoluciones.com',
+                'password' => 'Bexsuper'
+            ],
         ];
 
         foreach($users as $user) {
