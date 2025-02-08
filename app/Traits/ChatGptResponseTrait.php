@@ -13,23 +13,26 @@ trait ChatGptResponseTrait
             $yourApiKey = env('OPENAI_API_KEY');
             $client = OpenAI::client($yourApiKey);
 
-            $fileId = null;
-
-            Log::info('Mensaje recibido para ChatGPT:', ['message' => $message]);
-
+            $message = trim((string) $message);
             if (empty($message)) {
-                Log::error('El mensaje está vacío o nulo.');
-                throw new \Exception('El mensaje no puede estar vacío.');
+                Log::error('El mensaje del usuario es inválido o vacío.');
+                return 'El mensaje no puede estar vacío.';
             }
 
-            $message = (string) $message;
+            $systemMessage = $docujment
+                ? 'Eres un asistente que analiza documentos de manera concisa.'
+                : 'Eres un asistente general breve y preciso.';
 
-            $systemMessage = $docujment ? 'Eres un asistente que analiza documentos de manera concisa.' : 'Eres un asistente general breve y precisa.';
+            $fileId = null;
 
             if ($docujment) {
                 try {
                     $response = Http::get($docujment);
-                    $tempPath = storage_path('app/temp_document.pdf');
+                    if ($response->failed()) {
+                        throw new \Exception('No se pudo descargar el documento.');
+                    }
+
+                    $tempPath = storage_path('app/temp/' . uniqid() . '.pdf');
                     file_put_contents($tempPath, $response->body());
 
                     $file = $client->files()->upload([
