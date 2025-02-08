@@ -81,15 +81,17 @@ class TransactionalOrderController extends Controller
 
         try {
             $transactions = TransactionalOrder::with(['messages', 'user'])
-            ->when($user->email !== 'super@bexsoluciones.com', function ($query) use ($user, $account) {
-                if ($account) {
-                    if ($account !== $user->email) {
-                        return $query->whereRaw('1 = 0'); // Devuelve cero resultados
-                    }
+            ->when($user->email === 'super@bexsoluciones.com', function ($query) use ($account) {
+                // Si "super" recibe un filtro de "account", solo muestra ese usuario.
+                if (!empty($account)) {
                     return $query->whereHas('user', function ($q) use ($account) {
                         $q->where('email', $account);
                     });
                 }
+                // Si no hay filtro "account", ve todo.
+            })
+            ->when($user->email !== 'super@bexsoluciones.com', function ($query) use ($user) {
+                // Si NO es "super", solo ve sus propias transacciones, sin importar "account".
                 return $query->where('user_id', $user->id);
             })
             ->whereBetween('created_at', [$startDate, $endDate])
