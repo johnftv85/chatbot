@@ -46,7 +46,7 @@ class WhatsAppController extends Controller
         }
 
         try {
-            $response = $this->api($cellphone, $text, $url);
+            $response = $this->api($cellphone, $text, $url,null);
             return response()->json([
                 'status' => 'success',
                 'response' => $response

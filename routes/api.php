@@ -33,6 +33,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware(['auth:sanctum'])->group( function (){
     Route::get('/logout', [AuthController::class, 'logout']);
     Route::post('/singlewh', [WhatsAppController::class, 'message']);
+    Route::post('/sendlocation', [WhatsAppController::class, 'sendLocation']);
     Route::get('/statuswh', [TransactionalOrderController::class, 'statuswh']);
     Route::get('/reportuser', [TransactionalOrderController::class, 'reportuser']);
     Route::get('/get-emoticons', [MessageController::class, 'getEmoticons']);

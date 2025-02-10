@@ -132,6 +132,79 @@ trait WhatsAppApiTrait
         }
     }
 
+    public function apiLocation($cellphone, $message, $latitude , $longitude, $name = null, $addres = null, $transaction)
+    {
+        try {
+
+            $api =  ConnectionApi::where('id', 1)->first();
+
+            if (!$api ) {
+                throw new Exception('Connection API not found.');
+            }
+
+            $headers = [
+                'Authorization' => 'Bearer ' . $api->endpoint,
+                'Content-Type' => 'application/json',
+            ];
+
+            if ($api->method == "POST") {
+                    $response = Http::withHeaders($headers)->post($api->url, [
+                        'messaging_product' => 'whatsapp',
+                        "recipient_type"=> 'individual',
+                        'to' => $cellphone,
+                        'type' => 'location',
+                        'location' => [
+                            'latitude' => $latitude,
+                            'longitude' => $longitude,
+                            'name' => $name,
+                            'address' => $addres
+                        ]
+                    ]);
+
+            } else if ($api->method == "GET") {
+                $response = Http::withHeaders($headers)->get($api->url, [
+
+                ]);
+            } else {
+                throw new Exception('Unsupported HTTP method.');
+            }
+
+
+            $responseBody = json_decode($response->body(), true);
+
+            Log::info('API Response Body:', ['response' => $responseBody]);
+
+            if ($response->successful()) {
+                if (isset($responseBody['messaging_product'], $responseBody['contacts'][0]['wa_id'], $responseBody['messages'][0]['id'])) {
+                    $message = $this->_saveMessage(
+                        $responseBody['messaging_product'],
+                        'text',
+                        $responseBody['contacts'][0]['wa_id'],
+                        $responseBody['messages'][0]['id'],
+                        now(),
+                        $transaction,
+                    );
+
+                    $updateTransaction = TransactionalOrder::find($transaction);
+                    $updateTransaction->wam_message_id = $responseBody['messages'][0]['id'];
+                    $updateTransaction->status = '9';
+                    $updateTransaction->save();
+
+                    Log::info('API Response Body: ok');
+
+                    return $responseBody;
+                } else {
+                    Log::error('Unexpected API response structure', ['response' => $responseBody]);
+                    throw new Exception('Invalid response structure.');
+                }
+            }
+
+        } catch (Exception $e) {
+            Log::error('API request error: ' . $e->getMessage());
+            return null;
+        }
+    }
+
 
     public function dispatchMessage($cellphone, $message, $attachment = null)
     {

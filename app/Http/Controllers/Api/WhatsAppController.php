@@ -17,9 +17,10 @@ use App\Traits\WhatsAppApiTrait;
 use App\Traits\ChatGptResponseTrait;
 use Exception;
 use App\Events\Webhook;
+use App\Jobs\SendLocationToWhatsApp;
 use Carbon\Carbon;
 use Illuminate\Container\Attributes\Auth;
-
+use PhpParser\Node\Stmt\TryCatch;
 
 class WhatsAppController extends Controller
 {
@@ -98,6 +99,83 @@ class WhatsAppController extends Controller
             ], 500);
         }
     }
+
+    public function sendLocation(Request $request)
+    {
+        $user = request()->user();
+
+        if (!$user) {
+            return response()->json(['error' => 'Usuario no autenticado'], 401);
+        }
+
+        $validator = $request->validate([
+            'cellphone' => 'required|string',
+            'message' => 'nullable|string',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+            'name' => 'nullable|string',
+            'address' => 'nullable|string',
+        ]);
+
+        $cellphone = $validator['cellphone'];
+        $latitude = $validator['latitude'];
+        $longitude = $validator['longitude'];
+        $name = $validator['name'] ?? '';
+        $address = $validator['address'] ?? '';
+        $cleanMessage = !empty($validator['message'])
+            ? trim(preg_replace("/\s+/", " ", $validator['message']))
+            : 'Location';
+            $cleanMessage = html_entity_decode($cleanMessage, ENT_QUOTES, 'UTF-8');
+            $cleanMessage = urldecode($cleanMessage);
+
+         try {
+                $transactionCode = Uuid::uuid1();
+
+                $transaction = TransactionalOrder::create([
+                    'status' => '0',
+                    'message' => $cleanMessage,
+                    'ip' => $request->ip(),
+                    'user_id' => $user->id,
+                    'cellphone' => $cellphone,
+                    'transaction_code' => $transactionCode,
+                    'latitude' => $latitude,
+                    'longitude' => $longitude,
+                    'location_name' => $name,
+                    'location_address' => $address,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+
+                $job = new SendLocationToWhatsApp(
+                    $cellphone,
+                    $cleanMessage,
+                    $latitude,
+                    $longitude,
+                    $name,
+                    $address,
+                    $transaction->id
+                );
+                dispatch($job);
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Message has been queued for delivery.',
+                    'transaction_code' =>  $transactionCode
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Error al enviar mensaje:', [
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
+                ]);
+
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Failed to send message.',
+                    'details' => $e->getMessage()
+                ], 500);
+            }
+    }
+
 
     public function verifyWebhook(Request $request)
     {
