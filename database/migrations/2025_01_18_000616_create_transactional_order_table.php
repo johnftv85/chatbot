@@ -22,6 +22,10 @@ return new class extends Migration
             $table->string('attachment')->nullable();
             $table->timestamp('schedule')->nullable();
             $table->string('wam_message_id')->nullable();
+            $table->string('latitude')->nullable();
+            $table->string('longitude')->nullable();
+            $table->text('location_name')->nullable();
+            $table->string('location_address')->nullable();
             $table->timestamps();
         });
     }
