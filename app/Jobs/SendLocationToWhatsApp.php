@@ -23,7 +23,6 @@ class SendLocationToWhatsApp implements ShouldQueue
     // public $timeout = 120;
 
     protected $cellphone;
-    protected $message;
     protected $latitude;
     protected $longitude;
     protected $name;
@@ -33,10 +32,9 @@ class SendLocationToWhatsApp implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct($cellphone,$message,$latitude,$longitude,$name = null,$address = null,$transaction_id)
+    public function __construct($cellphone,$latitude,$longitude,$name = null,$address = null,$transaction_id)
     {
         $this->cellphone = $cellphone;
-        $this->message = $message;
         $this->latitude = $latitude;
         $this->longitude = $longitude;
         $this->name = $name;
@@ -50,7 +48,7 @@ class SendLocationToWhatsApp implements ShouldQueue
     public function handle(): void
     {
         try {
-            $this->apiLocation($this->cellphone, $this->message, $this->latitude, $this->longitude,$this->name,$this->address,$this->transaction_id);
+            $this->apiLocation($this->cellphone, $this->latitude, $this->longitude,$this->name,$this->address,$this->transaction_id);
         } catch (\Exception $e) {
             Log::error('Error en SendMessageJob: ' . $e->getMessage());
 

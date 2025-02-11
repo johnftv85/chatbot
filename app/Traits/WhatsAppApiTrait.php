@@ -132,7 +132,7 @@ trait WhatsAppApiTrait
         }
     }
 
-    public function apiLocation($cellphone, $message, $latitude , $longitude, $name = null, $addres = null, $transaction)
+    public function apiLocation($cellphone, $latitude , $longitude, $name = null, $addres = null, $transaction)
     {
         try {
 
