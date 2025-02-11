@@ -15,7 +15,7 @@ use Throwable;
 
 class SendLocationToWhatsApp implements ShouldQueue
 {
-    use Queueable, WhatsAppApiTrait;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, WhatsAppApiTrait;
 
 
     public $tries = 5;
