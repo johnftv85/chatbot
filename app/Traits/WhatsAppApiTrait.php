@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Http;
 use Carbon\Carbon;
 
 use App\Jobs\SendMessageJob;
+use App\Jobs\SendLocationToWhatsApp;
 use App\Models\Message;
 use App\Models\ConnectionApi;
 use App\Models\TransactionalOrder;
