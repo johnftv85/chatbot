@@ -110,7 +110,6 @@ class WhatsAppController extends Controller
 
         $validator = $request->validate([
             'cellphone' => 'required|string',
-            'message' => 'nullable|string',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
             'name' => 'nullable|string',
@@ -122,11 +121,7 @@ class WhatsAppController extends Controller
         $longitude = $validator['longitude'];
         $name = $validator['name'] ?? '';
         $address = $validator['address'] ?? '';
-        $cleanMessage = !empty($validator['message'])
-            ? trim(preg_replace("/\s+/", " ", $validator['message']))
-            : 'Location';
-            $cleanMessage = html_entity_decode($cleanMessage, ENT_QUOTES, 'UTF-8');
-            $cleanMessage = urldecode($cleanMessage);
+        $cleanMessage = 'Location';
 
          try {
                 $transactionCode = Uuid::uuid1();
@@ -148,7 +143,6 @@ class WhatsAppController extends Controller
 
                 $job = new SendLocationToWhatsApp(
                     $cellphone,
-                    $cleanMessage,
                     $latitude,
                     $longitude,
                     $name,
