@@ -20,7 +20,13 @@ class TransactionalOrder extends Model
         'transaction_code',
         'attachment',
         'schedule',
-        'wam_message_id'
+        'wam_message_id',
+        'latitude',
+        'longitude',
+        'location_name',
+        'location_address',
+        'created_at',
+        'updated_at'
     ];
 
     public function user()

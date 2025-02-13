@@ -71,7 +71,7 @@ trait WhatsAppApiTrait
                         'to' => $cellphone,
                         'type' => 'template',
                         'template' => [
-                            'name' => 'message',
+                            'name' => 'card_transaction_alert_1',
                             'language' => [
                                 'code' => 'es'
                             ],
@@ -133,7 +133,7 @@ trait WhatsAppApiTrait
         }
     }
 
-    public function apiLocation($cellphone, $latitude , $longitude, $name = null, $addres = null, $transaction)
+    public function apiLocation($cellphone, $latitude , $longitude, $name, $addres = null, $transaction)
     {
         try {
 
@@ -149,7 +149,54 @@ trait WhatsAppApiTrait
             ];
 
             if ($api->method == "POST") {
-                    $response = Http::withHeaders($headers)->post($api->url, [
+                $response = Http::withHeaders($headers)->post($api->url, [
+                    'messaging_product' => 'whatsapp',
+                    'to' => $cellphone,
+                    'type' => 'template',
+                    'template' => [
+                        'name' => "delivery_update_1",
+                        'language' => [
+                            "code" => "es"
+                        ],
+                        'components' => [
+                            [
+                                'type' => 'body',
+                                'parameters' => [
+                                    [
+                                        'type' => 'text',
+                                        'text' => $name
+                                    ]
+                                ]
+                            ],
+                            [
+                                "type" => "button",
+                                "sub_type" => "url",
+                                "index"=> 0,
+                                "parameters" => [
+                                    [
+                                        "type" => "text",
+                                        "text" => "https://www.google.com/maps?@".$latitude.",".$longitude
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]);
+                    // $response = Http::withHeaders($headers)->post($api->url, [
+                    //     'messaging_product' => 'whatsapp',
+                    //     "recipient_type"=> 'individual',
+                    //     'to' => $cellphone,
+                    //     'type' => 'location',
+                    //     'location' => [
+                    //         'latitude' => $latitude,
+                    //         'longitude' => $longitude,
+                    //         'name' => $name,
+                    //         'address' => $addres
+                    //     ]
+                    // ]);
+
+            } else if ($api->method == "GET" && isset($addres)) {
+                $response = Http::withHeaders($headers)->get($api->url, [
                         'messaging_product' => 'whatsapp',
                         "recipient_type"=> 'individual',
                         'to' => $cellphone,
@@ -160,11 +207,6 @@ trait WhatsAppApiTrait
                             'name' => $name,
                             'address' => $addres
                         ]
-                    ]);
-
-            } else if ($api->method == "GET") {
-                $response = Http::withHeaders($headers)->get($api->url, [
-
                 ]);
             } else {
                 throw new Exception('Unsupported HTTP method.');

@@ -112,14 +112,16 @@ class WhatsAppController extends Controller
             'cellphone' => 'required|string',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
-            'name' => 'nullable|string',
+            'name' => 'required|string',
             'address' => 'nullable|string',
         ]);
 
         $cellphone = $validator['cellphone'];
         $latitude = $validator['latitude'];
         $longitude = $validator['longitude'];
-        $name = $validator['name'] ?? '';
+        $name = trim(preg_replace("/\s+/", " ", $validator['name']));
+        $name = html_entity_decode($name, ENT_QUOTES, 'UTF-8');
+        $name = urldecode($name);
         $address = $validator['address'] ?? '';
         $cleanMessage = 'Location';
 
@@ -128,14 +130,14 @@ class WhatsAppController extends Controller
 
                 $transaction = TransactionalOrder::create([
                     'status' => '0',
-                    'message' => $cleanMessage,
+                    'message' => $name,
                     'ip' => $request->ip(),
                     'user_id' => $user->id,
                     'cellphone' => $cellphone,
                     'transaction_code' => $transactionCode,
                     'latitude' => $latitude,
                     'longitude' => $longitude,
-                    'location_name' => $name,
+                    'location_name' => $cleanMessage,
                     'location_address' => $address,
                     'created_at' => now(),
                     'updated_at' => now()
