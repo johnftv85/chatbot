@@ -32,7 +32,7 @@ class SendLocationToWhatsApp implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct($cellphone,$latitude,$longitude,$name = null,$address = null,$transaction_id)
+    public function __construct($cellphone,$latitude,$longitude,$name,$address = null,$transaction_id)
     {
         $this->cellphone = $cellphone;
         $this->latitude = $latitude;
