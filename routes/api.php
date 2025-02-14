@@ -30,7 +30,7 @@ Route::post('/register', [AuthController::class, 'register']);
 // Route::post('/login', [AuthController::class, 'login'])->middleware('validate_ip');
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::middleware(['auth:sanctum'])->group( function (){
+Route::middleware(['auth:sanctum','check.sanctum.expiration'])->group( function (){
     Route::get('/logout', [AuthController::class, 'logout']);
     Route::post('/singlewh', [WhatsAppController::class, 'message']);
     Route::post('/sendlocation', [WhatsAppController::class, 'sendLocation']);

@@ -37,8 +37,9 @@ class WhatsAppController extends Controller
             'cellphone' => 'required|regex:/^(\d{12})(;\d{12})*$/',
             'message' => 'required|string|max:500',
             'attachment' => 'nullable|url',
+            'name' => 'nullable|string|max:50',
             'schedule' => 'nullable|date_format:Y-m-d H:i:s|after_or_equal:now',
-            'chatgpt' => 'nullable|boolean',
+            'chatgpt' => 'nullable|in:0,1',
         ]);
 
         $cellphones = array_filter(array_map('trim', explode(';', $validator['cellphone'])));
@@ -46,12 +47,13 @@ class WhatsAppController extends Controller
         $cleanMessage = html_entity_decode($cleanMessage, ENT_QUOTES, 'UTF-8');
         $cleanMessage = urldecode($cleanMessage);
         $schedule = $validator['schedule'] ?? null;
+        $name = $validator['name'] ?? null;
         $attachment = $validator['attachment'] ?? null;
-        $chatgpt = $validator['chatgpt'] ?? false;
+        $chatgpt = $validator['chatgpt'] ?? 0;
 
         try {
             $transactionCode = Uuid::uuid1();
-            $aiMessage = $chatgpt ? $this->cleanMessageForWhatsApp($this->getChatGptResponse($cleanMessage,null)) : $cleanMessage;
+            $aiMessage = ($chatgpt == 1) ? $this->cleanMessageForWhatsApp($this->getChatGptResponse($cleanMessage,null)) : $cleanMessage;
 
             foreach ($cellphones as $cellphone) {
                 $transaction = TransactionalOrder::create([
@@ -63,6 +65,7 @@ class WhatsAppController extends Controller
                     'transaction_code' => $transactionCode,
                     'attachment' => $attachment,
                     'schedule' => $schedule,
+                    'chatgpt' => $chatgpt,
                     'created_at' => now(),
                     'updated_at' => now()
                 ]);
@@ -70,6 +73,7 @@ class WhatsAppController extends Controller
                 $job = new SendMessageJob(
                     $cellphone,
                     $aiMessage,
+                    $name,
                     $attachment,
                     $transaction->id
                 );

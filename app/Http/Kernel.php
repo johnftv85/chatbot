@@ -43,6 +43,7 @@ class Kernel extends HttpKernel
             'throttle:api',
             \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \App\Http\Middleware\RefreshSanctumToken::class,
         ],
     ];
 
@@ -65,10 +66,12 @@ class Kernel extends HttpKernel
         'signed' => \App\Http\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+        'check.sanctum.expiration' => \App\Http\Middleware\CheckSanctumExpiration::class,
     ];
 
     protected $routeMiddleware = [
         'validate_ip' => \App\Http\Middleware\ValidateIp::class,
+        'check.sanctum.expiration' => \App\Http\Middleware\CheckSanctumExpiration::class,
     ];
 
 }

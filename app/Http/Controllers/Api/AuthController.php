@@ -54,6 +54,7 @@ class AuthController extends Controller
         Log::info('IPs permitidas:', ['ips' => $authorizedIps]);
 
         if (!in_array($ip, $authorizedIps)) {
+            Log::warning("Intento de acceso desde una IP no autorizada: {$ip}");
             return response()->json([
                 'status' => 'error',
                 'message' => 'IP no autorizada para realizar esta petición.'

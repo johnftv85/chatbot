@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('transaction_code', 100);
             $table->string('attachment')->nullable();
             $table->timestamp('schedule')->nullable();
+            $table->boolean('chatgpt')->default(0);
             $table->string('wam_message_id')->nullable();
             $table->string('latitude')->nullable();
             $table->string('longitude')->nullable();
