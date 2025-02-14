@@ -15,7 +15,7 @@ use App\Models\TransactionalOrder;
 
 trait WhatsAppApiTrait
 {
-    public function api($cellphone, $message, $attachment = null,$transaction)
+    public function api($cellphone, $message,$name = null, $attachment = null,$transaction)
     {
         try {
 
@@ -71,7 +71,7 @@ trait WhatsAppApiTrait
                         'to' => $cellphone,
                         'type' => 'template',
                         'template' => [
-                            'name' => 'card_transaction_alert_1',
+                            'name' => 'delivery_update_3',
                             'language' => [
                                 'code' => 'es'
                             ],
@@ -79,6 +79,10 @@ trait WhatsAppApiTrait
                                 [
                                     'type' => 'body',
                                     'parameters' => [
+                                        [
+                                            'type' => 'text',
+                                            'text' => $name ? $name : '😄'
+                                        ],
                                         [
                                             'type' => 'text',
                                             'text' => $message

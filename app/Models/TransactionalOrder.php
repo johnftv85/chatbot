@@ -20,6 +20,7 @@ class TransactionalOrder extends Model
         'transaction_code',
         'attachment',
         'schedule',
+        'chatgpt',
         'wam_message_id',
         'latitude',
         'longitude',
