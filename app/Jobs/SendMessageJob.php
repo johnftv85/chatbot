@@ -23,16 +23,18 @@ class SendMessageJob implements ShouldQueue
 
     protected $cellphone;
     protected $message;
+    protected $name;
     protected $attachment;
     protected $transaction_id;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($cellphone, $message, $attachment = null, $transaction_id)
+    public function __construct($cellphone, $message, $name = null, $attachment = null, $transaction_id)
     {
         $this->cellphone = $cellphone;
         $this->message = $message;
+        $this->name = $name;
         $this->attachment = $attachment;
         $this->transaction_id = $transaction_id;
     }
@@ -43,7 +45,7 @@ class SendMessageJob implements ShouldQueue
     public function handle(): void
     {
         try {
-            $this->api($this->cellphone, $this->message, $this->attachment, $this->transaction_id);
+            $this->api($this->cellphone, $this->message,$this->name, $this->attachment, $this->transaction_id);
         } catch (\Exception $e) {
             Log::error('Error en SendMessageJob: ' . $e->getMessage());
 

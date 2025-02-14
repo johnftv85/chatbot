@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\TransactionalOrder;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Exception;
@@ -39,6 +40,8 @@ class TransactionalOrderController extends Controller
             return [
                 'id' => $transaction->id,
                 'transaction_status' => $transaction->status,
+                'schedule' => $transaction->schedule,
+                'chatgpt' => $transaction->chatgpt,
                 'messages' => $transaction->messages->map(function ($message) {
                     return [
                         // 'id' => $message->id,
@@ -74,8 +77,8 @@ class TransactionalOrderController extends Controller
             'account' => 'nullable|string',
         ]);
 
-        $startDate = $request->input('startdate');
-        $endDate = $request->input('enddate');
+        $startDate = Carbon::parse($request->input('startdate'))->startOfDay();
+        $endDate = Carbon::parse($request->input('enddate'))->endOfDay();
         $status = $request->input('status');
         $account = $request->input('account');
 
@@ -111,6 +114,8 @@ class TransactionalOrderController extends Controller
                 return [
                     'id' => $transaction->id,
                     'transaction_status' => $transaction->status,
+                    'schedule' => $transaction->schedule,
+                    'chatgpt' => $transaction->chatgpt,
                     'created_by' => $transaction->user ? $transaction->user->email : 'Unknown',
                     'date' => $transaction->created_at->format('Y-m-d H:i:s'),
                     'messages' => $transaction->messages->map(function ($message) {
