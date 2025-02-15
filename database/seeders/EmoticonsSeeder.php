@@ -690,12 +690,12 @@ class EmoticonsSeeder extends Seeder
         ]);
 
         Emoticon::create([
-            'code' => urlencode('💯 '),
+            'code' => urlencode('💯'),
             'description' => 'Cien Puntos.'
         ]);
 
         Emoticon::create([
-            'code' => urlencode('🎉 '),
+            'code' => urlencode('🎉'),
             'description' => 'Cañón De Confeti.'
         ]);
 

@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->foreignId('plan_id')->nullable()->constrained('plans')->onDelete('set null');
+            $table->integer('message_limit')->default(0);
             $table->rememberToken();
             $table->timestamps();
         });
