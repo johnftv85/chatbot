@@ -2,15 +2,9 @@
 
 namespace Database\Seeders;
 
-<<<<<<< HEAD
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\User;
-=======
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
->>>>>>> bexchatbot/master
 
 class UserSeeder extends Seeder
 {
@@ -22,7 +16,6 @@ class UserSeeder extends Seeder
         $users = [
             (object) [
                 'id' => 1,
-<<<<<<< HEAD
                 'name' => 'Paisapan',
                 'email' => 'cristianrave@pandapandistribuciones.com',
                 'password' => bcrypt('Paisapan')
@@ -44,17 +37,6 @@ class UserSeeder extends Seeder
                 'name' => 'John Fredy Torres',
                 'email' => 'j.fredytv@gmail.com',
                 'password' => bcrypt('John Fredy Torres')
-=======
-                'name' => 'webmaster@bexsoluciones.com',
-                'email' => 'webmaster@bexsoluciones.com',
-                'password' => 'Bexsoluciones'
-            ],
-            (object) [
-                'id' => 2,
-                'name' => 'super@bexsoluciones.com',
-                'email' => 'super@bexsoluciones.com',
-                'password' => 'Bexsuper'
->>>>>>> bexchatbot/master
             ],
         ];
 
