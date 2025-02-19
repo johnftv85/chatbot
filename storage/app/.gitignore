@@ -1,3 +1,7 @@
 *
+<<<<<<< HEAD
+=======
+!private/
+>>>>>>> bexchatbot/master
 !public/
 !.gitignore
