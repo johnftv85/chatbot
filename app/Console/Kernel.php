@@ -4,14 +4,18 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+<<<<<<< HEAD
 use Illuminate\Support\Facades\Log;
 use Cron\CronExpression;
 
 use App\Models\Command;
+=======
+>>>>>>> bexchatbot/master
 
 class Kernel extends ConsoleKernel
 {
     /**
+<<<<<<< HEAD
      * Define the application's command schedule.
      */
     protected function schedule(Schedule $schedule): void
@@ -47,6 +51,27 @@ class Kernel extends ConsoleKernel
      * Register the commands for the application.
      */
     protected function commands(): void
+=======
+     * Define los comandos de Artisan personalizados.
+     */
+    protected $commands = [
+        \App\Console\Commands\ProcessScheduledTasks::class,
+    ];
+
+    /**
+     * Define las tareas programadas.
+     */
+    protected function schedule(Schedule $schedule): void
+    {
+        //  $schedule->command('inspire')->hourly();
+        $schedule->command('tasks:process')->everyMinute();
+    }
+
+    /**
+     * Registra los comandos en la consola.
+     */
+    protected function commands()
+>>>>>>> bexchatbot/master
     {
         $this->load(__DIR__.'/Commands');
 

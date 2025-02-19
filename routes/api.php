@@ -1,10 +1,13 @@
 <?php
 
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\MessageController;
+use App\Http\Controllers\Api\TransactionalOrderController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\ConnectionController;
-use App\Http\Controllers\MessageController;
+use App\Http\Controllers\Api\WhatsAppController;
+use Illuminate\Routing\Route as RoutingRoute;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,12 +23,25 @@ use App\Http\Controllers\MessageController;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+Route::get('/whatsapp-webhook',[WhatsAppController::class,'verifyWebhook']);
+Route::post('/whatsapp-webhook',[WhatsAppController::class,'processWebhook']);
 
-Route::get('/pdf/{content?}', [MessageController::class, 'pdf'])->name('pdf');
+Route::post('/register', [AuthController::class, 'register']);
+// Route::post('/login', [AuthController::class, 'login'])->middleware('validate_ip');
+Route::post('/login', [AuthController::class, 'login']);
 
-Route::get('Connection/{userId}/{codtipodoc}/{prefmov}/{nummov}', [ConnectionController::class, 'index']);
-// Route::resource('Connection/{user_id}/{codtipodoc}/{prefmov}/{nummov}', ConnectionController::class);
+Route::middleware(['auth:sanctum','check.sanctum.expiration'])->group( function (){
+    Route::get('/logout', [AuthController::class, 'logout']);
+    Route::post('/singlewh', [WhatsAppController::class, 'message']);
+    Route::post('/sendlocation', [WhatsAppController::class, 'sendLocation']);
+    Route::get('/statuswh', [TransactionalOrderController::class, 'statuswh']);
+    Route::get('/reportuser', [TransactionalOrderController::class, 'reportuser']);
+    Route::get('/get-emoticons', [MessageController::class, 'getEmoticons']);
+    Route::apiResources([
+        'message' => MessageController::class,
+    ]);
+});
 
 
-Route::get('/{cellphone}/{text}/{url}', [Controller::class, 'message'])
-       ->where('url', '.*');
+
+

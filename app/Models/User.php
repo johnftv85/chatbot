@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
+<<<<<<< HEAD
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -18,13 +19,26 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
+=======
+class User extends Authenticatable
+{
+    /** @use HasFactory<\Database\Factories\UserFactory> */
+    use HasFactory, Notifiable, HasApiTokens;
+>>>>>>> bexchatbot/master
 
     /**
      * The attributes that are mass assignable.
      *
+<<<<<<< HEAD
      * @var array<int, string>
      */
     protected $fillable = [
+=======
+     * @var list<string>
+     */
+    protected $fillable = [
+        'id',
+>>>>>>> bexchatbot/master
         'name',
         'email',
         'password',
@@ -33,7 +47,11 @@ class User extends Authenticatable
     /**
      * The attributes that should be hidden for serialization.
      *
+<<<<<<< HEAD
      * @var array<int, string>
+=======
+     * @var list<string>
+>>>>>>> bexchatbot/master
      */
     protected $hidden = [
         'password',
@@ -41,6 +59,7 @@ class User extends Authenticatable
     ];
 
     /**
+<<<<<<< HEAD
      * The attributes that should be cast.
      *
      * @var array<string, string>
@@ -67,5 +86,22 @@ class User extends Authenticatable
 
             set: fn($value)=> strtolower($value)
         );
+=======
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
+
+    public function transactionalOrders()
+    {
+        return $this->hasMany(TransactionalOrder::class, 'transaction_id');
+>>>>>>> bexchatbot/master
     }
 }
