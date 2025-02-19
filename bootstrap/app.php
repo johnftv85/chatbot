@@ -1,6 +1,5 @@
 <?php
 
-<<<<<<< HEAD
 /*
 |--------------------------------------------------------------------------
 | Create The Application
@@ -12,13 +11,10 @@
 |
 */
 
-=======
->>>>>>> bexchatbot/master
 $app = new Illuminate\Foundation\Application(
     $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__)
 );
 
-<<<<<<< HEAD
 /*
 |--------------------------------------------------------------------------
 | Bind Important Interfaces
@@ -40,27 +36,11 @@ $app->singleton(
     App\Console\Kernel::class
 );
 
-=======
-// Registra el Console Kernel
-$app->singleton(
-    Illuminate\Contracts\Console\Kernel::class,
-    App\Console\Kernel::class
-);
-
-// Registra el HTTP Kernel
-$app->singleton(
-    Illuminate\Contracts\Http\Kernel::class,
-    App\Http\Kernel::class
-);
-
-// Registra el Handler de excepciones
->>>>>>> bexchatbot/master
 $app->singleton(
     Illuminate\Contracts\Debug\ExceptionHandler::class,
     App\Exceptions\Handler::class
 );
 
-<<<<<<< HEAD
 /*
 |--------------------------------------------------------------------------
 | Return The Application
@@ -72,6 +52,4 @@ $app->singleton(
 |
 */
 
-=======
->>>>>>> bexchatbot/master
 return $app;
